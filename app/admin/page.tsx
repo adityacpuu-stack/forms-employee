@@ -70,95 +70,88 @@ export default function AdminDashboard() {
   async function exportToExcel() {
     const workbook = new ExcelJS.Workbook()
     const worksheet = workbook.addWorksheet('Data Karyawan', {
-      pageSetup: { paperSize: 9, orientation: 'landscape' }
+      pageSetup: { paperSize: 9, orientation: 'landscape', fitToPage: true }
     })
 
-    // Company Header
-    worksheet.mergeCells('A1:F1')
+    // HEADER - Merge across all columns (AH = 34 columns)
+    worksheet.mergeCells('A1:AH1')
     const titleRow = worksheet.getCell('A1')
-    titleRow.value = 'DATA KARYAWAN'
-    titleRow.font = { name: 'Arial', size: 18, bold: true, color: { argb: 'FFFFFF' } }
-    titleRow.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: '1F4788' }
-    }
+    titleRow.value = 'DATA KARYAWAN PERUSAHAAN'
+    titleRow.font = { name: 'Calibri', size: 20, bold: true, color: { argb: 'FFFFFF' } }
+    titleRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '0B5394' } }
     titleRow.alignment = { vertical: 'middle', horizontal: 'center' }
-    worksheet.getRow(1).height = 35
+    worksheet.getRow(1).height = 40
 
-    // Document Info
-    worksheet.mergeCells('A2:F2')
+    // SUB HEADER
+    worksheet.mergeCells('A2:AH2')
     const infoRow = worksheet.getCell('A2')
-    infoRow.value = `Tanggal Export: ${new Date().toLocaleDateString('id-ID', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric'
-    })} | Total Data: ${employees.length} Karyawan`
-    infoRow.font = { name: 'Arial', size: 10, italic: true }
+    infoRow.value = `Dicetak: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })} | Total: ${employees.length} Karyawan`
+    infoRow.font = { name: 'Calibri', size: 11, bold: true }
     infoRow.alignment = { vertical: 'middle', horizontal: 'center' }
-    infoRow.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'E8F0FE' }
-    }
-    worksheet.getRow(2).height = 20
+    infoRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'D9EAD3' } }
+    worksheet.getRow(2).height = 25
 
-    // Empty row
-    worksheet.getRow(3).height = 5
+    // CATEGORY HEADERS (Row 3)
+    const categoryRow = worksheet.getRow(3)
+    categoryRow.height = 25
 
-    // Define columns with professional headers
-    const columns = [
-      { header: 'NO', key: 'no', width: 5 },
-      { header: 'NAMA LENGKAP', key: 'nama', width: 25 },
-      { header: 'NO. KTP', key: 'noKTP', width: 18 },
-      { header: 'TEMPAT LAHIR', key: 'tempatLahir', width: 15 },
-      { header: 'TANGGAL LAHIR', key: 'tanggalLahir', width: 15 },
-      { header: 'JENIS KELAMIN', key: 'jenisKelamin', width: 15 },
-      { header: 'AGAMA', key: 'agama', width: 12 },
-      { header: 'GOL. DARAH', key: 'golDarah', width: 12 },
-      { header: 'ALAMAT KTP', key: 'alamatKTP', width: 35 },
-      { header: 'DOMISILI SEKARANG', key: 'domisili', width: 35 },
-      { header: 'NO. HP', key: 'noHP', width: 15 },
-      { header: 'NO. TELP RUMAH', key: 'noTelpRumah', width: 15 },
-      { header: 'EMAIL', key: 'email', width: 25 },
-      { header: 'PENDIDIKAN', key: 'pendidikan', width: 15 },
-      { header: 'JURUSAN', key: 'jurusan', width: 20 },
-      { header: 'SEKOLAH/UNIVERSITAS', key: 'sekolah', width: 30 },
-      { header: 'PERUSAHAAN SEBELUMNYA', key: 'perusahaanSebelum', width: 25 },
-      { header: 'TGL MASUK KERJA', key: 'tglMasuk', width: 15 },
-      { header: 'JABATAN', key: 'jabatan', width: 20 },
-      { header: 'STATUS NIKAH', key: 'statusNikah', width: 15 },
-      { header: 'NAMA PASANGAN', key: 'namaPasangan', width: 25 },
-      { header: 'PEKERJAAN PASANGAN', key: 'pekerjaanPasangan', width: 20 },
-      { header: 'NAMA ANAK 1', key: 'anak1', width: 20 },
-      { header: 'NAMA ANAK 2', key: 'anak2', width: 20 },
-      { header: 'NAMA ANAK 3', key: 'anak3', width: 20 },
-      { header: 'NAMA ANAK 4', key: 'anak4', width: 20 },
-      { header: 'NO. NPWP', key: 'noNPWP', width: 18 },
-      { header: 'NAMA BANK', key: 'namaBank', width: 15 },
-      { header: 'NO. REKENING', key: 'noRek', width: 18 },
-      { header: 'KONTAK EMERGENCY', key: 'kontakEmergency', width: 25 },
-      { header: 'NO. EMERGENCY', key: 'noEmergency', width: 15 },
-      { header: 'HUBUNGAN EMERGENCY', key: 'hubunganEmergency', width: 20 },
-      { header: 'SOCIAL MEDIA', key: 'socialMedia', width: 20 },
-      { header: 'TGL REGISTRASI', key: 'tglRegistrasi', width: 15 },
+    // Merge cells for category groupings
+    worksheet.mergeCells('A3:A4') // NO
+    worksheet.mergeCells('B3:M3') // DATA PRIBADI
+    worksheet.mergeCells('N3:P3') // PENDIDIKAN
+    worksheet.mergeCells('Q3:S3') // PEKERJAAN
+    worksheet.mergeCells('T3:Y3') // KELUARGA
+    worksheet.mergeCells('Z3:AB3') // KEUANGAN
+    worksheet.mergeCells('AC3:AE3') // KONTAK DARURAT
+    worksheet.mergeCells('AF3:AH3') // LAINNYA
+
+    const categories = [
+      { cell: 'A3', label: 'NO', color: '6FA8DC' },
+      { cell: 'B3', label: 'DATA PRIBADI', color: '93C47D' },
+      { cell: 'N3', label: 'PENDIDIKAN', color: 'F6B26B' },
+      { cell: 'Q3', label: 'PEKERJAAN', color: 'E06666' },
+      { cell: 'T3', label: 'KELUARGA', color: 'A64D79' },
+      { cell: 'Z3', label: 'KEUANGAN', color: '76A5AF' },
+      { cell: 'AC3', label: 'KONTAK DARURAT', color: 'CC0000' },
+      { cell: 'AF3', label: 'LAINNYA', color: '999999' },
     ]
 
-    worksheet.columns = columns
+    categories.forEach(cat => {
+      const cell = worksheet.getCell(cat.cell)
+      cell.value = cat.label
+      cell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFF' } }
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: cat.color } }
+      cell.alignment = { vertical: 'middle', horizontal: 'center' }
+      cell.border = {
+        top: { style: 'medium', color: { argb: '000000' } },
+        left: { style: 'medium', color: { argb: '000000' } },
+        bottom: { style: 'medium', color: { argb: '000000' } },
+        right: { style: 'medium', color: { argb: '000000' } }
+      }
+    })
 
-    // Style header row
+    // COLUMN HEADERS (Row 4)
+    const headers = [
+      'NO', 'NAMA LENGKAP', 'NO. KTP', 'TEMPAT LAHIR', 'TGL LAHIR',
+      'JENIS KELAMIN', 'AGAMA', 'GOL. DARAH', 'ALAMAT KTP', 'DOMISILI',
+      'NO. HP', 'NO. TELP RUMAH', 'EMAIL',
+      'PENDIDIKAN', 'JURUSAN', 'SEKOLAH/UNIV',
+      'PERUSAHAAN SEBELUMNYA', 'TGL MASUK', 'JABATAN',
+      'STATUS NIKAH', 'NAMA PASANGAN', 'KERJA PASANGAN', 'ANAK 1', 'ANAK 2', 'ANAK 3', 'ANAK 4',
+      'NO. NPWP', 'NAMA BANK', 'NO. REKENING',
+      'NAMA', 'NO. TELP', 'HUBUNGAN',
+      'SOCIAL MEDIA', 'TGL DAFTAR'
+    ]
+
     const headerRow = worksheet.getRow(4)
-    headerRow.font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFF' } }
-    headerRow.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: '2C5F8D' }
-    }
-    headerRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }
-    headerRow.height = 30
+    headerRow.height = 35
 
-    // Add borders to header
-    headerRow.eachCell((cell) => {
+    headers.forEach((header, index) => {
+      const cell = headerRow.getCell(index + 1)
+      cell.value = header
+      cell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFF' } }
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: '1C4587' } }
+      cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }
       cell.border = {
         top: { style: 'thin', color: { argb: '000000' } },
         left: { style: 'thin', color: { argb: '000000' } },
@@ -167,87 +160,125 @@ export default function AdminDashboard() {
       }
     })
 
-    // Add data rows
+    // SET COLUMN WIDTHS
+    worksheet.columns = [
+      { key: 'no', width: 6 },
+      { key: 'nama', width: 25 },
+      { key: 'noKTP', width: 18 },
+      { key: 'tempatLahir', width: 15 },
+      { key: 'tglLahir', width: 13 },
+      { key: 'jenisKelamin', width: 13 },
+      { key: 'agama', width: 10 },
+      { key: 'golDarah', width: 10 },
+      { key: 'alamatKTP', width: 30 },
+      { key: 'domisili', width: 30 },
+      { key: 'noHP', width: 14 },
+      { key: 'telpRumah', width: 14 },
+      { key: 'email', width: 25 },
+      { key: 'pendidikan', width: 12 },
+      { key: 'jurusan', width: 18 },
+      { key: 'sekolah', width: 25 },
+      { key: 'perusahaanLama', width: 22 },
+      { key: 'tglMasuk', width: 13 },
+      { key: 'jabatan', width: 18 },
+      { key: 'statusNikah', width: 13 },
+      { key: 'pasangan', width: 22 },
+      { key: 'kerjaPasangan', width: 18 },
+      { key: 'anak1', width: 18 },
+      { key: 'anak2', width: 18 },
+      { key: 'anak3', width: 18 },
+      { key: 'anak4', width: 18 },
+      { key: 'npwp', width: 18 },
+      { key: 'bank', width: 13 },
+      { key: 'rek', width: 16 },
+      { key: 'namaEmergency', width: 22 },
+      { key: 'noEmergency', width: 14 },
+      { key: 'hubunganEmergency', width: 15 },
+      { key: 'socmed', width: 18 },
+      { key: 'tglDaftar', width: 13 },
+    ]
+
+    // ADD DATA ROWS
     employees.forEach((emp, index) => {
       const row = worksheet.addRow({
         no: index + 1,
         nama: emp.nama,
         noKTP: emp.noKTP,
         tempatLahir: emp.tempatLahir,
-        tanggalLahir: new Date(emp.tanggalLahir).toLocaleDateString('id-ID'),
+        tglLahir: new Date(emp.tanggalLahir).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }),
         jenisKelamin: emp.jenisKelamin,
         agama: emp.agama,
         golDarah: emp.golonganDarah,
         alamatKTP: emp.alamatKTP,
         domisili: emp.domisiliSekarang,
         noHP: emp.noHandphone,
-        noTelpRumah: emp.noTeleponRumah || '-',
+        telpRumah: emp.noTeleponRumah || '-',
         email: emp.emailPribadi,
         pendidikan: emp.pendidikanTerakhir,
         jurusan: emp.jurusan,
         sekolah: emp.sekolahUniversitas,
-        perusahaanSebelum: emp.perusahaanSebelumnya,
-        tglMasuk: new Date(emp.tanggalMasukKerja).toLocaleDateString('id-ID'),
+        perusahaanLama: emp.perusahaanSebelumnya,
+        tglMasuk: new Date(emp.tanggalMasukKerja).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }),
         jabatan: emp.jabatan,
         statusNikah: emp.statusPerkawinan,
-        namaPasangan: emp.namaSuamiIstri || '-',
-        pekerjaanPasangan: emp.pekerjaanPasangan || '-',
+        pasangan: emp.namaSuamiIstri || '-',
+        kerjaPasangan: emp.pekerjaanPasangan || '-',
         anak1: emp.namaAnakPertama || '-',
         anak2: emp.namaAnakKedua || '-',
         anak3: emp.namaAnakKetiga || '-',
         anak4: emp.namaAnakKeempat || '-',
-        noNPWP: emp.noNPWP || '-',
-        namaBank: emp.namaBank,
-        noRek: emp.noRekeningBank,
-        kontakEmergency: emp.namaKontakEmergency,
+        npwp: emp.noNPWP || '-',
+        bank: emp.namaBank,
+        rek: emp.noRekeningBank,
+        namaEmergency: emp.namaKontakEmergency,
         noEmergency: emp.noKontakEmergency,
         hubunganEmergency: emp.hubunganKontakEmergency,
-        socialMedia: emp.akunSocialMedia || '-',
-        tglRegistrasi: new Date(emp.createdAt).toLocaleDateString('id-ID'),
+        socmed: emp.akunSocialMedia || '-',
+        tglDaftar: new Date(emp.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }),
       })
 
-      // Alternate row colors
-      row.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: index % 2 === 0 ? 'FFFFFF' : 'F8F9FA' }
-      }
+      // STYLING DATA ROWS
+      row.height = 20
+      row.font = { name: 'Calibri', size: 10 }
+      row.alignment = { vertical: 'middle', wrapText: false }
 
-      row.font = { name: 'Arial', size: 9 }
-      row.alignment = { vertical: 'middle', wrapText: true }
-
-      // Add borders to all cells
-      row.eachCell((cell) => {
+      // Zebra striping and borders
+      const bgColor = index % 2 === 0 ? 'FFFFFF' : 'F3F3F3'
+      row.eachCell((cell, colNumber) => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor } }
         cell.border = {
-          top: { style: 'thin', color: { argb: 'D0D0D0' } },
-          left: { style: 'thin', color: { argb: 'D0D0D0' } },
-          bottom: { style: 'thin', color: { argb: 'D0D0D0' } },
-          right: { style: 'thin', color: { argb: 'D0D0D0' } }
+          top: { style: 'thin', color: { argb: 'CCCCCC' } },
+          left: { style: 'thin', color: { argb: 'CCCCCC' } },
+          bottom: { style: 'thin', color: { argb: 'CCCCCC' } },
+          right: { style: 'thin', color: { argb: 'CCCCCC' } }
         }
-      })
 
-      // Center align specific columns
-      const centerColumns = ['A', 'D', 'E', 'F', 'G', 'H', 'K', 'L', 'N', 'R', 'T', 'AA', 'AB', 'AE', 'AF', 'AH']
-      centerColumns.forEach(col => {
-        const cell = row.getCell(col)
-        cell.alignment = { vertical: 'middle', horizontal: 'center' }
+        // Center align for specific columns: NO, dates, gender, religion, blood type, phone numbers, education, status, bank
+        const centerCols = [1, 4, 5, 6, 7, 8, 11, 12, 14, 18, 20, 27, 28, 31, 34]
+        if (centerCols.includes(colNumber)) {
+          cell.alignment = { vertical: 'middle', horizontal: 'center' }
+        }
       })
     })
 
-    // Footer
+    // FREEZE PANES
+    worksheet.views = [{ state: 'frozen', xSplit: 2, ySplit: 4 }]
+
+    // AUTO FILTER
+    worksheet.autoFilter = {
+      from: { row: 4, column: 1 },
+      to: { row: 4, column: 34 }
+    }
+
+    // FOOTER
     const footerRowNum = worksheet.rowCount + 2
-    worksheet.mergeCells(`A${footerRowNum}:F${footerRowNum}`)
+    worksheet.mergeCells(`A${footerRowNum}:AH${footerRowNum}`)
     const footerCell = worksheet.getCell(`A${footerRowNum}`)
-    footerCell.value = '© Data Karyawan - Confidential Document'
-    footerCell.font = { name: 'Arial', size: 9, italic: true, color: { argb: '666666' } }
+    footerCell.value = '⚠️ DOKUMEN RAHASIA - Confidential Document - PT. Your Company'
+    footerCell.font = { name: 'Calibri', size: 9, italic: true, color: { argb: '666666' } }
     footerCell.alignment = { vertical: 'middle', horizontal: 'center' }
 
-    // Freeze panes (header row)
-    worksheet.views = [
-      { state: 'frozen', xSplit: 0, ySplit: 4 }
-    ]
-
-    // Generate file
+    // GENERATE FILE
     const buffer = await workbook.xlsx.writeBuffer()
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
     const url = window.URL.createObjectURL(blob)
