@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 
 type Employee = {
   id: string
@@ -67,62 +67,195 @@ export default function AdminDashboard() {
     }
   }
 
-  function exportToExcel() {
-    const exportData = employees.map((emp) => ({
-      'Nama': emp.nama,
-      'No KTP': emp.noKTP,
-      'Email': emp.emailPribadi,
-      'No Handphone': emp.noHandphone,
-      'Tempat Lahir': emp.tempatLahir,
-      'Tanggal Lahir': new Date(emp.tanggalLahir).toLocaleDateString('id-ID'),
-      'Jenis Kelamin': emp.jenisKelamin,
-      'Agama': emp.agama,
-      'Golongan Darah': emp.golonganDarah,
-      'Alamat KTP': emp.alamatKTP,
-      'Domisili Sekarang': emp.domisiliSekarang,
-      'No Telpon Rumah': emp.noTeleponRumah || '-',
-      'Status Perkawinan': emp.statusPerkawinan,
-      'Nama Suami/Istri': emp.namaSuamiIstri || '-',
-      'Pekerjaan Pasangan': emp.pekerjaanPasangan || '-',
-      'Nama Anak 1': emp.namaAnakPertama || '-',
-      'Nama Anak 2': emp.namaAnakKedua || '-',
-      'Nama Anak 3': emp.namaAnakKetiga || '-',
-      'Nama Anak 4': emp.namaAnakKeempat || '-',
-      'Pendidikan Terakhir': emp.pendidikanTerakhir,
-      'Jurusan': emp.jurusan,
-      'Sekolah/Universitas': emp.sekolahUniversitas,
-      'Perusahaan Sebelumnya': emp.perusahaanSebelumnya,
-      'Tanggal Masuk Kerja': new Date(emp.tanggalMasukKerja).toLocaleDateString('id-ID'),
-      'Jabatan': emp.jabatan,
-      'No NPWP': emp.noNPWP || '-',
-      'Nama Bank': emp.namaBank,
-      'No Rekening': emp.noRekeningBank,
-      'Kontak Emergency': emp.namaKontakEmergency,
-      'No Emergency': emp.noKontakEmergency,
-      'Hubungan Emergency': emp.hubunganKontakEmergency,
-      'Social Media': emp.akunSocialMedia || '-',
-      'Tanggal Daftar': new Date(emp.createdAt).toLocaleDateString('id-ID'),
-    }))
+  async function exportToExcel() {
+    const workbook = new ExcelJS.Workbook()
+    const worksheet = workbook.addWorksheet('Data Karyawan', {
+      pageSetup: { paperSize: 9, orientation: 'landscape' }
+    })
 
-    const ws = XLSX.utils.json_to_sheet(exportData)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Data Karyawan')
+    // Company Header
+    worksheet.mergeCells('A1:F1')
+    const titleRow = worksheet.getCell('A1')
+    titleRow.value = 'DATA KARYAWAN'
+    titleRow.font = { name: 'Arial', size: 18, bold: true, color: { argb: 'FFFFFF' } }
+    titleRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: '1F4788' }
+    }
+    titleRow.alignment = { vertical: 'middle', horizontal: 'center' }
+    worksheet.getRow(1).height = 35
 
-    // Auto-size columns
-    const maxWidth = 50
-    const colWidths = Object.keys(exportData[0] || {}).map((key) => ({
-      wch: Math.min(
-        maxWidth,
-        Math.max(
-          key.length,
-          ...exportData.map((row) => String(row[key as keyof typeof row]).length)
-        )
-      ),
-    }))
-    ws['!cols'] = colWidths
+    // Document Info
+    worksheet.mergeCells('A2:F2')
+    const infoRow = worksheet.getCell('A2')
+    infoRow.value = `Tanggal Export: ${new Date().toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    })} | Total Data: ${employees.length} Karyawan`
+    infoRow.font = { name: 'Arial', size: 10, italic: true }
+    infoRow.alignment = { vertical: 'middle', horizontal: 'center' }
+    infoRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'E8F0FE' }
+    }
+    worksheet.getRow(2).height = 20
 
-    const fileName = `data_karyawan_${new Date().toISOString().split('T')[0]}.xlsx`
-    XLSX.writeFile(wb, fileName)
+    // Empty row
+    worksheet.getRow(3).height = 5
+
+    // Define columns with professional headers
+    const columns = [
+      { header: 'NO', key: 'no', width: 5 },
+      { header: 'NAMA LENGKAP', key: 'nama', width: 25 },
+      { header: 'NO. KTP', key: 'noKTP', width: 18 },
+      { header: 'TEMPAT LAHIR', key: 'tempatLahir', width: 15 },
+      { header: 'TANGGAL LAHIR', key: 'tanggalLahir', width: 15 },
+      { header: 'JENIS KELAMIN', key: 'jenisKelamin', width: 15 },
+      { header: 'AGAMA', key: 'agama', width: 12 },
+      { header: 'GOL. DARAH', key: 'golDarah', width: 12 },
+      { header: 'ALAMAT KTP', key: 'alamatKTP', width: 35 },
+      { header: 'DOMISILI SEKARANG', key: 'domisili', width: 35 },
+      { header: 'NO. HP', key: 'noHP', width: 15 },
+      { header: 'NO. TELP RUMAH', key: 'noTelpRumah', width: 15 },
+      { header: 'EMAIL', key: 'email', width: 25 },
+      { header: 'PENDIDIKAN', key: 'pendidikan', width: 15 },
+      { header: 'JURUSAN', key: 'jurusan', width: 20 },
+      { header: 'SEKOLAH/UNIVERSITAS', key: 'sekolah', width: 30 },
+      { header: 'PERUSAHAAN SEBELUMNYA', key: 'perusahaanSebelum', width: 25 },
+      { header: 'TGL MASUK KERJA', key: 'tglMasuk', width: 15 },
+      { header: 'JABATAN', key: 'jabatan', width: 20 },
+      { header: 'STATUS NIKAH', key: 'statusNikah', width: 15 },
+      { header: 'NAMA PASANGAN', key: 'namaPasangan', width: 25 },
+      { header: 'PEKERJAAN PASANGAN', key: 'pekerjaanPasangan', width: 20 },
+      { header: 'NAMA ANAK 1', key: 'anak1', width: 20 },
+      { header: 'NAMA ANAK 2', key: 'anak2', width: 20 },
+      { header: 'NAMA ANAK 3', key: 'anak3', width: 20 },
+      { header: 'NAMA ANAK 4', key: 'anak4', width: 20 },
+      { header: 'NO. NPWP', key: 'noNPWP', width: 18 },
+      { header: 'NAMA BANK', key: 'namaBank', width: 15 },
+      { header: 'NO. REKENING', key: 'noRek', width: 18 },
+      { header: 'KONTAK EMERGENCY', key: 'kontakEmergency', width: 25 },
+      { header: 'NO. EMERGENCY', key: 'noEmergency', width: 15 },
+      { header: 'HUBUNGAN EMERGENCY', key: 'hubunganEmergency', width: 20 },
+      { header: 'SOCIAL MEDIA', key: 'socialMedia', width: 20 },
+      { header: 'TGL REGISTRASI', key: 'tglRegistrasi', width: 15 },
+    ]
+
+    worksheet.columns = columns
+
+    // Style header row
+    const headerRow = worksheet.getRow(4)
+    headerRow.font = { name: 'Arial', size: 10, bold: true, color: { argb: 'FFFFFF' } }
+    headerRow.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: '2C5F8D' }
+    }
+    headerRow.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }
+    headerRow.height = 30
+
+    // Add borders to header
+    headerRow.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: '000000' } },
+        left: { style: 'thin', color: { argb: '000000' } },
+        bottom: { style: 'thin', color: { argb: '000000' } },
+        right: { style: 'thin', color: { argb: '000000' } }
+      }
+    })
+
+    // Add data rows
+    employees.forEach((emp, index) => {
+      const row = worksheet.addRow({
+        no: index + 1,
+        nama: emp.nama,
+        noKTP: emp.noKTP,
+        tempatLahir: emp.tempatLahir,
+        tanggalLahir: new Date(emp.tanggalLahir).toLocaleDateString('id-ID'),
+        jenisKelamin: emp.jenisKelamin,
+        agama: emp.agama,
+        golDarah: emp.golonganDarah,
+        alamatKTP: emp.alamatKTP,
+        domisili: emp.domisiliSekarang,
+        noHP: emp.noHandphone,
+        noTelpRumah: emp.noTeleponRumah || '-',
+        email: emp.emailPribadi,
+        pendidikan: emp.pendidikanTerakhir,
+        jurusan: emp.jurusan,
+        sekolah: emp.sekolahUniversitas,
+        perusahaanSebelum: emp.perusahaanSebelumnya,
+        tglMasuk: new Date(emp.tanggalMasukKerja).toLocaleDateString('id-ID'),
+        jabatan: emp.jabatan,
+        statusNikah: emp.statusPerkawinan,
+        namaPasangan: emp.namaSuamiIstri || '-',
+        pekerjaanPasangan: emp.pekerjaanPasangan || '-',
+        anak1: emp.namaAnakPertama || '-',
+        anak2: emp.namaAnakKedua || '-',
+        anak3: emp.namaAnakKetiga || '-',
+        anak4: emp.namaAnakKeempat || '-',
+        noNPWP: emp.noNPWP || '-',
+        namaBank: emp.namaBank,
+        noRek: emp.noRekeningBank,
+        kontakEmergency: emp.namaKontakEmergency,
+        noEmergency: emp.noKontakEmergency,
+        hubunganEmergency: emp.hubunganKontakEmergency,
+        socialMedia: emp.akunSocialMedia || '-',
+        tglRegistrasi: new Date(emp.createdAt).toLocaleDateString('id-ID'),
+      })
+
+      // Alternate row colors
+      row.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: index % 2 === 0 ? 'FFFFFF' : 'F8F9FA' }
+      }
+
+      row.font = { name: 'Arial', size: 9 }
+      row.alignment = { vertical: 'middle', wrapText: true }
+
+      // Add borders to all cells
+      row.eachCell((cell) => {
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'D0D0D0' } },
+          left: { style: 'thin', color: { argb: 'D0D0D0' } },
+          bottom: { style: 'thin', color: { argb: 'D0D0D0' } },
+          right: { style: 'thin', color: { argb: 'D0D0D0' } }
+        }
+      })
+
+      // Center align specific columns
+      const centerColumns = ['A', 'D', 'E', 'F', 'G', 'H', 'K', 'L', 'N', 'R', 'T', 'AA', 'AB', 'AE', 'AF', 'AH']
+      centerColumns.forEach(col => {
+        const cell = row.getCell(col)
+        cell.alignment = { vertical: 'middle', horizontal: 'center' }
+      })
+    })
+
+    // Footer
+    const footerRowNum = worksheet.rowCount + 2
+    worksheet.mergeCells(`A${footerRowNum}:F${footerRowNum}`)
+    const footerCell = worksheet.getCell(`A${footerRowNum}`)
+    footerCell.value = '© Data Karyawan - Confidential Document'
+    footerCell.font = { name: 'Arial', size: 9, italic: true, color: { argb: '666666' } }
+    footerCell.alignment = { vertical: 'middle', horizontal: 'center' }
+
+    // Freeze panes (header row)
+    worksheet.views = [
+      { state: 'frozen', xSplit: 0, ySplit: 4 }
+    ]
+
+    // Generate file
+    const buffer = await workbook.xlsx.writeBuffer()
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `Data_Karyawan_${new Date().toISOString().split('T')[0]}.xlsx`
+    link.click()
+    window.URL.revokeObjectURL(url)
   }
 
   function formatDate(dateString: string) {
