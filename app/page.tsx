@@ -5,11 +5,13 @@ import { useState } from 'react'
 export default function RegistrationForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setSuccess(false)
 
     const formData = new FormData(e.currentTarget)
 
@@ -24,10 +26,18 @@ export default function RegistrationForm() {
         throw new Error(data.error || 'Gagal mengirim form')
       }
 
-      alert('Form berhasil dikirim!')
+      // Success!
+      setSuccess(true)
       e.currentTarget.reset()
+
+      // Scroll to top to show success message
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+
+      // Auto hide success message after 5 seconds
+      setTimeout(() => setSuccess(false), 5000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Terjadi kesalahan')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
       setLoading(false)
     }
@@ -41,9 +51,31 @@ export default function RegistrationForm() {
             Form Registrasi Karyawan Baru
           </h1>
 
+          {success && (
+            <div className="mb-6 p-4 bg-green-50 border-2 border-green-500 rounded-lg">
+              <div className="flex items-center">
+                <svg className="w-6 h-6 text-green-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <h3 className="text-lg font-semibold text-green-800">Form Berhasil Dikirim!</h3>
+                  <p className="text-sm text-green-700">Data karyawan telah berhasil disimpan. Terima kasih!</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-700 rounded">
-              {error}
+            <div className="mb-6 p-4 bg-red-50 border-2 border-red-500 rounded-lg">
+              <div className="flex items-center">
+                <svg className="w-6 h-6 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <h3 className="text-lg font-semibold text-red-800">Terjadi Kesalahan</h3>
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              </div>
             </div>
           )}
 
@@ -578,7 +610,10 @@ export default function RegistrationForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-blue-600 text-white px-8 py-3 rounded-md font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                className="bg-blue-600 text-white px-8 py-3 rounded-md font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
+                onClick={(e) => {
+                  console.log('Button clicked!', loading);
+                }}
               >
                 {loading ? 'Mengirim...' : 'Kirim Form'}
               </button>

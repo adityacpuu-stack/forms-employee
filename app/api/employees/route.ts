@@ -1,26 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
+import { uploadToCloudinary } from '@/lib/cloudinary'
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
 
-    // Helper function to save files
-    async function saveFile(file: File, prefix: string): Promise<string> {
-      const bytes = await file.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-
-      const timestamp = Date.now()
-      const fileName = `${prefix}_${timestamp}_${file.name.replace(/\s/g, '_')}`
-      const filePath = join(process.cwd(), 'public', 'uploads', fileName)
-
-      await writeFile(filePath, buffer)
-      return `/uploads/${fileName}`
-    }
-
-    // Save uploaded files
+    // Get uploaded files
     const ktpFile = formData.get('ktpFile') as File
     const kkFile = formData.get('kkFile') as File
     const npwpFile = formData.get('npwpFile') as File
@@ -33,10 +19,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const ktpPath = await saveFile(ktpFile, 'ktp')
-    const kkPath = await saveFile(kkFile, 'kk')
-    const npwpPath = await saveFile(npwpFile, 'npwp')
-    const bukuTabunganPath = await saveFile(bukuTabunganFile, 'buku_tabungan')
+    // Upload files to Cloudinary
+    const [ktpPath, kkPath, npwpPath, bukuTabunganPath] = await Promise.all([
+      uploadToCloudinary(ktpFile, 'ktp'),
+      uploadToCloudinary(kkFile, 'kk'),
+      uploadToCloudinary(npwpFile, 'npwp'),
+      uploadToCloudinary(bukuTabunganFile, 'buku-tabungan'),
+    ])
 
     // Create employee record
     const employee = await prisma.employee.create({
