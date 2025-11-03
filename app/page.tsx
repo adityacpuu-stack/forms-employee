@@ -13,7 +13,8 @@ export default function RegistrationForm() {
     setError('')
     setSuccess(false)
 
-    const formData = new FormData(e.currentTarget)
+    const formElement = e.currentTarget
+    const formData = new FormData(formElement)
 
     try {
       const response = await fetch('/api/employees', {
@@ -28,13 +29,19 @@ export default function RegistrationForm() {
 
       // Success!
       setSuccess(true)
-      e.currentTarget.reset()
+
+      // Reset form - wrapped in try-catch to handle any issues
+      try {
+        formElement?.reset()
+      } catch (resetError) {
+        console.error('Form reset error:', resetError)
+      }
 
       // Scroll to top to show success message
       window.scrollTo({ top: 0, behavior: 'smooth' })
 
-      // Auto hide success message after 5 seconds
-      setTimeout(() => setSuccess(false), 5000)
+      // Auto hide success message after 8 seconds
+      setTimeout(() => setSuccess(false), 8000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Terjadi kesalahan')
       window.scrollTo({ top: 0, behavior: 'smooth' })
