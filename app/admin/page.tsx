@@ -58,10 +58,23 @@ export default function AdminDashboard() {
     try {
       const response = await fetch('/api/employees')
       const data = await response.json()
-      setEmployees(data)
+
+      // Handle error response
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Failed to fetch employees')
+      }
+
+      // Ensure data is array
+      if (Array.isArray(data)) {
+        setEmployees(data)
+      } else {
+        console.error('Invalid data format:', data)
+        setEmployees([])
+      }
     } catch (error) {
       console.error('Error fetching employees:', error)
-      alert('Gagal mengambil data karyawan')
+      setEmployees([])
+      alert('Gagal mengambil data karyawan. Pastikan database sudah terhubung.')
     } finally {
       setLoading(false)
     }

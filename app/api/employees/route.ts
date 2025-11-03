@@ -109,8 +109,15 @@ export async function GET() {
     return NextResponse.json(employees)
   } catch (error) {
     console.error('Error fetching employees:', error)
+
+    // Return detailed error for debugging
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'Terjadi kesalahan saat mengambil data' },
+      {
+        error: 'Terjadi kesalahan saat mengambil data',
+        details: errorMessage,
+        employees: []
+      },
       { status: 500 }
     )
   }
