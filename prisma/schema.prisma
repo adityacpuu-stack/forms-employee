@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Employee {
+  id                    String   @id @default(cuid())
+  nama                  String
+  perusahaanSebelumnya  String
+  tanggalMasukKerja     DateTime
+  tempatLahir           String
+  tanggalLahir          DateTime
+  alamatKTP             String
+  noTeleponRumah        String?
+  noHandphone           String
+  agama                 String
+  pendidikanTerakhir    String
+  jurusan               String
+  sekolahUniversitas    String
+  jenisKelamin          String
+  noKTP                 String   @unique
+  golonganDarah         String
+  noNPWP                String?
+  emailPribadi          String
+  statusPerkawinan      String
+  jabatan               String
+  noRekeningBank        String
+  namaBank              String
+  namaKontakEmergency   String
+  noKontakEmergency     String
+  hubunganKontakEmergency String
+  namaSuamiIstri        String?
+  pekerjaanPasangan     String?
+  namaAnakPertama       String?
+  namaAnakKedua         String?
+  namaAnakKetiga        String?
+  namaAnakKeempat       String?
+  domisiliSekarang      String
+  akunSocialMedia       String?
+
+  // File paths
+  ktpFile               String
+  kkFile                String
+  npwpFile              String
+  bukuTabunganFile      String
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}

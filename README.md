@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Form Registrasi Karyawan Baru
 
-## Getting Started
+Aplikasi web untuk form registrasi karyawan baru dengan fitur admin dashboard dan export ke Excel.
 
-First, run the development server:
+## Fitur
 
+- Form registrasi karyawan yang lengkap
+- Upload dokumen (KTP, KK, NPWP, Buku Tabungan)
+- Admin dashboard untuk melihat semua data karyawan
+- Export data ke Excel (.xlsx)
+- Database SQLite dengan Prisma ORM
+- Responsive design dengan Tailwind CSS
+
+## Teknologi
+
+- Next.js 14 (App Router)
+- TypeScript
+- Prisma ORM
+- SQLite Database
+- Tailwind CSS
+- XLSX (untuk export Excel)
+
+## Instalasi
+
+1. Clone repository ini
+
+2. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Setup database (sudah otomatis jika belum ada):
+```bash
+npx prisma generate
+npx prisma migrate dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. Jalankan development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+5. Buka browser di [http://localhost:3000](http://localhost:3000)
 
-## Learn More
+## Struktur Aplikasi
 
-To learn more about Next.js, take a look at the following resources:
+```
+├── app/
+│   ├── page.tsx              # Form registrasi karyawan
+│   ├── admin/
+│   │   └── page.tsx          # Admin dashboard
+│   └── api/
+│       └── employees/
+│           └── route.ts      # API endpoint
+├── prisma/
+│   └── schema.prisma         # Database schema
+├── lib/
+│   └── prisma.ts             # Prisma client
+└── public/
+    └── uploads/              # Folder untuk file upload
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Penggunaan
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Form Registrasi
+1. Buka halaman utama (http://localhost:3000)
+2. Isi semua field yang required (ditandai dengan *)
+3. Upload dokumen yang diperlukan (max 10MB per file)
+4. Klik "Kirim Form"
 
-## Deploy on Vercel
+### Admin Dashboard
+1. Buka http://localhost:3000/admin
+2. Lihat daftar semua karyawan yang sudah terdaftar
+3. Klik "Lihat Detail" untuk melihat informasi lengkap
+4. Klik "Export ke Excel" untuk download data dalam format .xlsx
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Database
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Database menggunakan SQLite dan file database ada di `prisma/dev.db`
+
+Untuk reset database:
+```bash
+npx prisma migrate reset
+```
+
+## Build Production
+
+```bash
+npm run build
+npm start
+```
+
+## Catatan Penting
+
+- File upload maksimal 10MB per file
+- No KTP harus unique (tidak boleh duplikat)
+- Semua file upload disimpan di folder `public/uploads/`
+- Data tersimpan di database SQLite (`prisma/dev.db`)
